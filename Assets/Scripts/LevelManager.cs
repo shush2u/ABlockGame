@@ -64,5 +64,10 @@ public class LevelManager : MonoBehaviour
         swapped = toggle;
     }
 
+    // Game Over Stuff
 
+    public void GameOver()
+    {
+        Debug.Log("GAME OVER!");
+    }
 }

@@ -94,6 +94,7 @@ public class controls : MonoBehaviour
     {
         if (grid[4, 19] != null)
         {
+            levelManager.GameOver();
             return false;
         }
         else
