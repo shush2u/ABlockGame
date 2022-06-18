@@ -15,8 +15,6 @@ public class LevelManager : MonoBehaviour
 
     private int consecutiveClears = 0;
 
-    
-
     public void addPoints(int linesCleared)
     {
         int scoreToAdd = 0;
@@ -42,7 +40,7 @@ public class LevelManager : MonoBehaviour
 
     private void updatePointsText()
     {
-        pointsText.text = "Points: " + points;
+        pointsText.text = "Points:\n" + points;
     }
 
     public void resetConsecutiveClearCount()

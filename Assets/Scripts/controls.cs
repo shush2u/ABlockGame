@@ -92,7 +92,7 @@ public class controls : MonoBehaviour
 
     private bool spawnIsFree()
     {
-        if (grid[4, 19] != null)
+        if (grid[4, 18] != null)
         {
             levelManager.GameOver();
             return false;
