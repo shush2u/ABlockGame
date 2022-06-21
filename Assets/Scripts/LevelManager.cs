@@ -2,9 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
+    [Header("Point Display Parameters")]
     public float points = 0;
     [SerializeField] private TextMeshProUGUI pointsText;
 
@@ -64,8 +66,23 @@ public class LevelManager : MonoBehaviour
 
     // Game Over Stuff
 
+    [Header("Game Over Parameters")]
+    public GameObject gameOverPanel;
+    public string MainMenuName;
+
     public void GameOver()
     {
         Debug.Log("GAME OVER!");
+        gameOverPanel.SetActive(true);
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ExitToMainMenu()
+    {
+        SceneManager.LoadScene(MainMenuName);
     }
 }

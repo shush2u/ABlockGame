@@ -52,6 +52,8 @@ public class controls : MonoBehaviour
     // Update is called once per frame
     void Update()   
     {
+        float horizontalInput = Input.GetAxis("Horizontal");
+
         if (Input.GetKeyDown(KeyCode.D))
         {
             transform.position += Vector3.right;
