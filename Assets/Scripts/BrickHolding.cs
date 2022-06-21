@@ -35,12 +35,11 @@ public class BrickHolding : MonoBehaviour
     {
         if(!SlotEmpty())
         {
-            currentHeldBrick.GetComponent<controls>().isDummy(false);
+            currentHeldBrick.GetComponent<controls>().IsDummy(false);
             spawnTetrimino.spawnHeldTetrimino(currentHeldBrick);
             Destroy(currentHeldBrick);
         }
         currentHeldBrick = (GameObject)Instantiate(newHeldTetrimino, transform.position, Quaternion.identity);
-        currentHeldBrick.GetComponent<controls>().isDummy(true);
-
+        currentHeldBrick.GetComponent<controls>().IsDummy(true);
     }
 }

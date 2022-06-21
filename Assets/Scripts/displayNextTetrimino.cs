@@ -14,6 +14,6 @@ public class displayNextTetrimino : MonoBehaviour
     {
         Destroy(instantiatedTetrimino);
         instantiatedTetrimino = (GameObject) Instantiate(nextTetrimino, transform.position, Quaternion.identity);
-        instantiatedTetrimino.GetComponent<controls>().isDummy(true);
+        instantiatedTetrimino.GetComponent<controls>().IsDummy(true);
     }
 }

@@ -7,11 +7,6 @@ public class controls : MonoBehaviour
 
     public Vector3 rotationPoint;
 
-    public float fallTime = 2f;
-    private float previousTime = 0f;
-
-    private static Transform[,] grid = new Transform[10, 20];
-
     // Level Manager Script
     private LevelManager levelManager;
     
@@ -19,14 +14,30 @@ public class controls : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        brickHolding = FindObjectOfType<BrickHolding>();
         levelManager = FindObjectOfType<LevelManager>();
-        ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
-        UpdateGridForGhost();
-        updateGhost();
+        if (SpawnIsFree())
+        {
+            brickHolding = FindObjectOfType<BrickHolding>();
+            ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
+
+            previousTime = Time.time; // Sets start time to current time, otherwise first tick of the tetrimino fall will happen instantly. (Except for the very first piece)
+
+            UpdateGridForGhost();
+            UpdateGhost();
+        }
+        else
+        {
+            levelManager.GameOver();
+            this.enabled = false;
+        }
+        
     }
 
-    public void isDummy(bool trueOrFalse)
+    /// <summary>
+    /// If enables/disables this script on a GameObject
+    /// </summary>
+    /// <param name="trueOrFalse"></param>
+    public void IsDummy(bool trueOrFalse)
     {
         if(trueOrFalse == true)
         {
@@ -44,70 +55,114 @@ public class controls : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.D))
         {
             transform.position += Vector3.right;
-            if(!validMove())
+            if(!ValidMove())
             {
                 transform.position += Vector3.left;
             }
-            updateGhost();
+            UpdateGhost();
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
             transform.position += Vector3.left;
-            if (!validMove())
+            if (!ValidMove())
             {
                 transform.position += Vector3.right;
             }
-            updateGhost();
+            UpdateGhost();
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
             transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
-            if (!validMove())
+            if (!ValidMove())
             {
                 transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90); 
             }
-            updateGhost();
+            UpdateGhost();
         }
         if(Input.GetKeyDown(KeyCode.C))
         {
-            swapBrick();
+            SwapBrick();
+        }
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            SlamTetriminoDown();
         }
     }
 
 
     private void FixedUpdate()
     {
-        if (Time.time - previousTime > (Input.GetKey(KeyCode.Space) ? fallTime / 10 : fallTime))
+        if (Time.time - previousTime > (Input.GetKey(KeyCode.S) ? fallTime / fastFallTimeMultiplier : fallTime))
         {
-            transform.position += Vector3.down;
-            if (!validMove())
-            {
-                transform.position += Vector3.up;
-                AddToGrid();
-                checkForLines();
-                UpdateGridForGhost();
-                levelManager.ToggleHasSwapped(false);
-                this.enabled = false;
-                if(spawnIsFree())
-                {
-                    FindObjectOfType<SpawnTetrimino>().spawnNewTetrimino();
-                }
-            }
-            previousTime = Time.time;
+            Descend();
         }
     }
 
-    private bool spawnIsFree()
+    bool ValidMove()
     {
-        if (grid[4, 18] != null)
+        foreach (Transform children in transform)
         {
-            levelManager.GameOver();
-            return false;
+            int roundedX = Mathf.RoundToInt(children.transform.position.x);
+            int roundedY = Mathf.RoundToInt(children.transform.position.y);
+            if (roundedX < 0 || roundedX > 9 || roundedY < 0 || roundedY > 20)
+            {
+                return false;
+            }
+            if (grid[roundedX, roundedY] != null)
+            {
+                return false;
+            }
         }
-        else
+
+        return true;
+    }
+
+    // Fall Logic
+
+    public float fallTime = 2f;
+    public float fastFallTimeMultiplier = 15f;
+    private float previousTime = 0f;
+
+    private void Descend()
+    {
+        transform.position += Vector3.down;
+        if (!ValidMove())
         {
-            return true;
+            transform.position += Vector3.up;
+            SettleTetrimino();
         }
+        previousTime = Time.time;
+    }
+
+    private void SlamTetriminoDown()
+    {
+        bool lowestValidPointReached = false;
+        do
+        {
+            transform.position += Vector3.down;
+            if (!ValidMove())
+            {
+                transform.position += Vector3.up;
+                SettleTetrimino();
+                lowestValidPointReached = true;
+            }
+        } while (lowestValidPointReached == false);
+    }
+
+    //
+
+    // Grid Logic
+
+    private static Transform[,] grid = new Transform[10, 20];
+
+    private void SettleTetrimino()
+    {
+        AddToGrid();
+        CheckForLines();
+        UpdateGridForGhost();
+        levelManager.ToggleHasSwapped(false);
+        this.enabled = false;
+        FindObjectOfType<SpawnTetrimino>().spawnNewTetrimino();
     }
 
     private void AddToGrid()
@@ -120,7 +175,7 @@ public class controls : MonoBehaviour
         }
     }
 
-    private void checkForLines()
+    private void CheckForLines()
     {
         int linesCleared = 0;
         for(int i = 19; i >= 0; i--)
@@ -175,50 +230,49 @@ public class controls : MonoBehaviour
         }
     }
 
-    bool validMove()
+    private bool SpawnIsFree()
     {
         foreach(Transform children in transform)
         {
             int roundedX = Mathf.RoundToInt(children.transform.position.x);
             int roundedY = Mathf.RoundToInt(children.transform.position.y);
-            if(roundedX < 0 || roundedX > 9 || roundedY < 0 || roundedY > 20)
-            {
-                return false;
-            }
             if (grid[roundedX, roundedY] != null)
             {
                 return false;
             }
         }
-
         return true;
     }
+
+    //
 
     // Brick Holding
 
     private BrickHolding brickHolding;
 
-    private void swapBrick()
+    private void SwapBrick()
     {
-        if(hasSwapped() == false)
+        if(HasSwapped() == false)
         {
             brickHolding.swapBricks(this.gameObject);
             Destroy(this.gameObject);
             levelManager.ToggleHasSwapped(true);
-            updateGhost();
+            UpdateGhost();
         }
     }
 
-    private bool hasSwapped()
+    private bool HasSwapped()
     {
         return levelManager.swapCheck();
     }
+
+    //
 
     // Ghost (Prediction) Brick
 
     private GhostBrickBehaviour ghostBrickBehaviour;
 
-    private void updateGhost()
+    private void UpdateGhost()
     {
         ghostBrickBehaviour.updatePosition(this.gameObject);
     }
@@ -227,5 +281,7 @@ public class controls : MonoBehaviour
     {
         ghostBrickBehaviour.UpdateGrid(grid);
     }
+
+    //
 
 }
