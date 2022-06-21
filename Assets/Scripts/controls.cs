@@ -21,13 +21,16 @@ public class controls : MonoBehaviour
     {
         brickHolding = FindObjectOfType<BrickHolding>();
         levelManager = FindObjectOfType<LevelManager>();
+        ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
+        UpdateGridForGhost();
+        updateGhost();
     }
 
     public void isDummy(bool trueOrFalse)
     {
         if(trueOrFalse == true)
         {
-              this.enabled = false;
+            this.enabled = false;
         }
         else
         {
@@ -45,6 +48,7 @@ public class controls : MonoBehaviour
             {
                 transform.position += Vector3.left;
             }
+            updateGhost();
         }
         if (Input.GetKeyDown(KeyCode.A))
         {
@@ -53,6 +57,7 @@ public class controls : MonoBehaviour
             {
                 transform.position += Vector3.right;
             }
+            updateGhost();
         }
         if (Input.GetKeyDown(KeyCode.Z))
         {
@@ -61,6 +66,7 @@ public class controls : MonoBehaviour
             {
                 transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90); 
             }
+            updateGhost();
         }
         if(Input.GetKeyDown(KeyCode.C))
         {
@@ -79,6 +85,7 @@ public class controls : MonoBehaviour
                 transform.position += Vector3.up;
                 AddToGrid();
                 checkForLines();
+                UpdateGridForGhost();
                 levelManager.ToggleHasSwapped(false);
                 this.enabled = false;
                 if(spawnIsFree())
@@ -198,12 +205,27 @@ public class controls : MonoBehaviour
             brickHolding.swapBricks(this.gameObject);
             Destroy(this.gameObject);
             levelManager.ToggleHasSwapped(true);
+            updateGhost();
         }
     }
 
     private bool hasSwapped()
     {
         return levelManager.swapCheck();
+    }
+
+    // Ghost (Prediction) Brick
+
+    private GhostBrickBehaviour ghostBrickBehaviour;
+
+    private void updateGhost()
+    {
+        ghostBrickBehaviour.updatePosition(this.gameObject);
+    }
+
+    private void UpdateGridForGhost()
+    {
+        ghostBrickBehaviour.UpdateGrid(grid);
     }
 
 }
