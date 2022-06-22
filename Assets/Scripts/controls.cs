@@ -20,7 +20,12 @@ public class controls : MonoBehaviour
             brickHolding = FindObjectOfType<BrickHolding>();
             ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
 
+            horizontalMoveRate = levelManager.GetHorizontalMoveRate();
+            fallTime = levelManager.GetFallTime();
+            fastFallTimeMultiplier = levelManager.GetFastFallTimeMultiplier();
+
             previousTime = Time.time; // Sets start time to current time, otherwise first tick of the tetrimino fall will happen instantly. (Except for the very first piece)
+            horizontalMoveTime = Time.time;
 
             UpdateGridForGhost();
             UpdateGhost();
@@ -33,10 +38,7 @@ public class controls : MonoBehaviour
         
     }
 
-    /// <summary>
-    /// If enables/disables this script on a GameObject
-    /// </summary>
-    /// <param name="trueOrFalse"></param>
+    /// <summary> Enables/disables this script on the GameObject </summary>
     public void IsDummy(bool trueOrFalse)
     {
         if(trueOrFalse == true)
@@ -49,11 +51,23 @@ public class controls : MonoBehaviour
         }   
     }
 
+    // Basic controls
+
+    float horizontalInput = 0;
+
+    private float horizontalMoveRate = 0.2f;
+    private float horizontalMoveTime;
+
+    bool firstFrameRight = true;
+    bool firstFrameLeft = true;
+
     // Update is called once per frame
     void Update()   
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
+        horizontalInput = Input.GetAxisRaw("Horizontal");
+        Debug.Log(horizontalInput);
 
+        /* Old movement
         if (Input.GetKeyDown(KeyCode.D))
         {
             transform.position += Vector3.right;
@@ -71,7 +85,56 @@ public class controls : MonoBehaviour
                 transform.position += Vector3.right;
             }
             UpdateGhost();
+        }*/
+
+        // New movement
+        if(horizontalInput == 0)
+        {
+            firstFrameLeft = true;
+            firstFrameRight = true;
+            horizontalMoveTime = Time.time;
         }
+        if (horizontalInput > 0) // right
+        {
+            if (firstFrameLeft == false)
+            {
+                firstFrameLeft = true;
+                horizontalMoveTime = Time.time;
+            }
+
+            if (firstFrameRight == true || Time.time - horizontalMoveTime > horizontalMoveRate)
+            {
+                horizontalMoveTime = Time.time;
+                firstFrameRight = false;
+                transform.position += Vector3.right;
+                if (!ValidMove())
+                {
+                    transform.position += Vector3.left;
+                }
+                UpdateGhost();
+            }
+        }
+        if (horizontalInput < 0) // left
+        {
+            if(firstFrameRight == false)
+            {
+                firstFrameRight = true;
+                horizontalMoveTime = Time.time; 
+            }
+            
+            if (firstFrameLeft == true || Time.time - horizontalMoveTime > horizontalMoveRate)
+            {
+                horizontalMoveTime = Time.time;
+                firstFrameLeft = false;
+                transform.position += Vector3.left;
+                if (!ValidMove())
+                {
+                    transform.position += Vector3.right;
+                }
+                UpdateGhost();
+            }
+        }
+        //
         if (Input.GetKeyDown(KeyCode.Z))
         {
             transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
@@ -92,10 +155,12 @@ public class controls : MonoBehaviour
     }
 
 
+
     private void FixedUpdate()
     {
         if (Time.time - previousTime > (Input.GetKey(KeyCode.S) ? fallTime / fastFallTimeMultiplier : fallTime))
         {
+            Debug.Log("This");
             Descend();
         }
     }
@@ -121,8 +186,8 @@ public class controls : MonoBehaviour
 
     // Fall Logic
 
-    public float fallTime = 2f;
-    public float fastFallTimeMultiplier = 15f;
+    private float fallTime = 2f;
+    private float fastFallTimeMultiplier = 15f;
     private float previousTime = 0f;
 
     private void Descend()

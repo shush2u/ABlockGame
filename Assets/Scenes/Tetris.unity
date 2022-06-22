@@ -1189,11 +1189,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 324dddb9a056afa49a14089e250bbd95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  horizontalMoveRate: 0.2
+  fallTime: 1.25
+  fastFallTimeMultiplier: 10
   points: 0
   pointsText: {fileID: 1903481359}
   pointsPerLine: 100
   tetrisMultiplier: 1.5
   consecutiveClearMultiplier: 1.25
+  speedUpPointRequirement: 1000
+  speedUpMultiplier: 0.8
   gameOverPanel: {fileID: 1634909208}
   MainMenuName: MainMenu
 --- !u!4 &654680800
