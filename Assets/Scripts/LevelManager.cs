@@ -1,13 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
     [Header("Control Parameters")]
     public float horizontalMoveRate = 0.2f;
+    public float placeTetriminoDelay = 0.25f;
     public float fallTime = 2f;
     public float fastFallTimeMultiplier = 15f;
 
@@ -25,10 +24,9 @@ public class LevelManager : MonoBehaviour
     public float speedUpPointRequirement = 1000f;
     public float speedUpMultiplier = 0.9f;
     private float speedUpCounter = 0;
-    
 
     // Controls params
-    
+
     public float GetHorizontalMoveRate()
     {
         return horizontalMoveRate;
@@ -44,9 +42,51 @@ public class LevelManager : MonoBehaviour
         return fastFallTimeMultiplier;
     }
 
+    public float GetPlaceTetriminoDelay()
+    {
+        return placeTetriminoDelay;
+    }
+
+    // Pausing
+
+    [Header("Pause Parameters")]
+    
+    public GameObject pauseMenuPanel;
+    public GameObject inGamePauseButton;
+
+    private GameObject currentControlledTetrimino;
+    private bool paused = false;
+
+    public void PauseGame()
+    {
+        TogglePauseMenu();
+    }
+    
+    public void SetNewCCTetrimino(GameObject tetrimino)
+    {
+        currentControlledTetrimino = tetrimino;
+    }
+
+    private void TogglePauseMenu()
+    {
+        if (paused == false)
+        {
+            paused = true;
+            currentControlledTetrimino.GetComponent<controls>().IsDummy(true);
+            inGamePauseButton.SetActive(false);
+        }
+        else
+        {
+            paused = false;
+            currentControlledTetrimino.GetComponent<controls>().IsDummy(false);
+            inGamePauseButton.SetActive(true);
+        }
+        pauseMenuPanel.SetActive(paused);
+    }
+
     // Point System
 
-    public void addPoints(int linesCleared)
+    public void AddPoints(int linesCleared)
     {
         int scoreToAdd = 0;
         if(linesCleared <= 3)
@@ -68,7 +108,7 @@ public class LevelManager : MonoBehaviour
         speedUpCounter += scoreToAdd;
         consecutiveClears++;
         SpeedUp();
-        updatePointsText();
+        UpdatePointsText();
     }
 
     private void SpeedUp()
@@ -80,12 +120,12 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void updatePointsText()
+    private void UpdatePointsText()
     {
         pointsText.text = "Points:\n" + points;
     }
 
-    public void resetConsecutiveClearCount()
+    public void ResetConsecutiveClearCount()
     {
         consecutiveClears = 0;
     }
@@ -94,7 +134,7 @@ public class LevelManager : MonoBehaviour
 
     private bool swapped = false;
 
-    public bool swapCheck()
+    public bool SwapCheck()
     {
         return swapped;
     }

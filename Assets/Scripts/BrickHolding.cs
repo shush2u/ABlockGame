@@ -22,16 +22,16 @@ public class BrickHolding : MonoBehaviour
         return false;
     }
 
-    public void swapBricks(GameObject controlledBrick)
+    public void SwapBricks(GameObject controlledBrick)
     {
         if(SlotEmpty())
         {
             spawnTetrimino.spawnNewTetrimino();
         }
-        newHeldTetrimino(controlledBrick);
+        NewHeldTetrimino(controlledBrick);
     }
 
-    private void newHeldTetrimino(GameObject newHeldTetrimino)
+    private void NewHeldTetrimino(GameObject newHeldTetrimino)
     {
         if(!SlotEmpty())
         {

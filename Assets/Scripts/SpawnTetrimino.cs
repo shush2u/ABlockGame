@@ -7,6 +7,9 @@ public class SpawnTetrimino : MonoBehaviour
     public GameObject[] tetriminoTypes;
     public GameObject NextTetrimino;
 
+    private GameObject previousTetrimino;
+    private int tetriminoRepeats = 0;
+
     private displayNextTetrimino nextTetriminoDisplay;
 
     // Start is called before the first frame update
@@ -14,6 +17,7 @@ public class SpawnTetrimino : MonoBehaviour
     {
         nextTetriminoDisplay = FindObjectOfType<displayNextTetrimino>();
         pickNextTetrimino();
+        previousTetrimino = NextTetrimino;
         spawnNewTetrimino();
     }
 
@@ -35,6 +39,21 @@ public class SpawnTetrimino : MonoBehaviour
     private void pickNextTetrimino() // Picks new random tetrimino
     {
         NextTetrimino = tetriminoTypes[Random.Range(0, tetriminoTypes.Length)];
+
+        if(NextTetrimino == previousTetrimino)
+        {
+            tetriminoRepeats++;
+        }
+        else
+        {
+            tetriminoRepeats = 0;
+        }
+
+        if(tetriminoRepeats >= 2)
+        {
+            NextTetrimino = tetriminoTypes[Random.Range(0, tetriminoTypes.Length)];
+        }
+
         updateNextTetriminoDisplay(NextTetrimino); 
     }
 

@@ -23,6 +23,7 @@ public class controls : MonoBehaviour
             horizontalMoveRate = levelManager.GetHorizontalMoveRate();
             fallTime = levelManager.GetFallTime();
             fastFallTimeMultiplier = levelManager.GetFastFallTimeMultiplier();
+            placeTetriminoDelay = levelManager.GetPlaceTetriminoDelay();
 
             previousTime = Time.time; // Sets start time to current time, otherwise first tick of the tetrimino fall will happen instantly. (Except for the very first piece)
             horizontalMoveTime = Time.time;
@@ -64,36 +65,57 @@ public class controls : MonoBehaviour
     // Update is called once per frame
     void Update()   
     {
-        horizontalInput = Input.GetAxisRaw("Horizontal");
-        Debug.Log(horizontalInput);
-
-        /* Old movement
-        if (Input.GetKeyDown(KeyCode.D))
+        if(this.enabled)
         {
-            transform.position += Vector3.right;
-            if(!ValidMove())
-            {
-                transform.position += Vector3.left;
-            }
-            UpdateGhost();
+            levelManager.SetNewCCTetrimino(this.gameObject);
         }
-        if (Input.GetKeyDown(KeyCode.A))
+        if(!IsPaused())
         {
-            transform.position += Vector3.left;
-            if (!ValidMove())
+            horizontalInput = Input.GetAxisRaw("Horizontal");
+            if (horizontalInput == 0)
             {
-                transform.position += Vector3.right;
+                firstFrameLeft = true;
+                firstFrameRight = true;
+                horizontalMoveTime = Time.time;
             }
-            UpdateGhost();
-        }*/
+            Debug.Log(horizontalInput);
 
-        // New movement
-        if(horizontalInput == 0)
-        {
-            firstFrameLeft = true;
-            firstFrameRight = true;
-            horizontalMoveTime = Time.time;
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
+                if (!ValidMove())
+                {
+                    transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90); 
+                }
+                UpdateGhost();
+            }
+            if(Input.GetKeyDown(KeyCode.C))
+            {
+                SwapBrick();
+            }
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                SlamTetriminoDown();
+            }
         }
+    }
+
+    private bool IsPaused()
+    {
+        if(Time.timeScale != 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private void FixedUpdate()
+    {
+        if (Time.time - previousTime > (Input.GetKey(KeyCode.S) ? fallTime / fastFallTimeMultiplier : fallTime))
+        {
+            Descend();
+        }
+
         if (horizontalInput > 0) // right
         {
             if (firstFrameLeft == false)
@@ -116,12 +138,12 @@ public class controls : MonoBehaviour
         }
         if (horizontalInput < 0) // left
         {
-            if(firstFrameRight == false)
+            if (firstFrameRight == false)
             {
                 firstFrameRight = true;
-                horizontalMoveTime = Time.time; 
+                horizontalMoveTime = Time.time;
             }
-            
+
             if (firstFrameLeft == true || Time.time - horizontalMoveTime > horizontalMoveRate)
             {
                 horizontalMoveTime = Time.time;
@@ -133,35 +155,6 @@ public class controls : MonoBehaviour
                 }
                 UpdateGhost();
             }
-        }
-        //
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
-            if (!ValidMove())
-            {
-                transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90); 
-            }
-            UpdateGhost();
-        }
-        if(Input.GetKeyDown(KeyCode.C))
-        {
-            SwapBrick();
-        }
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            SlamTetriminoDown();
-        }
-    }
-
-
-
-    private void FixedUpdate()
-    {
-        if (Time.time - previousTime > (Input.GetKey(KeyCode.S) ? fallTime / fastFallTimeMultiplier : fallTime))
-        {
-            Debug.Log("This");
-            Descend();
         }
     }
 
@@ -190,16 +183,27 @@ public class controls : MonoBehaviour
     private float fastFallTimeMultiplier = 15f;
     private float previousTime = 0f;
 
+    private float placeTetriminoDelay = 0.2f;
+
+    bool settlingTetrimino = false;
+
     private void Descend()
     {
         transform.position += Vector3.down;
         if (!ValidMove())
         {
             transform.position += Vector3.up;
-            SettleTetrimino();
+            if(settlingTetrimino == false)
+            {
+                settlingTetrimino = true;
+                Invoke("SettleTetrimino", placeTetriminoDelay);
+
+            }
         }
         previousTime = Time.time;
     }
+
+    bool slammed = false;
 
     private void SlamTetriminoDown()
     {
@@ -211,6 +215,7 @@ public class controls : MonoBehaviour
             {
                 transform.position += Vector3.up;
                 SettleTetrimino();
+                slammed = true;
                 lowestValidPointReached = true;
             }
         } while (lowestValidPointReached == false);
@@ -224,12 +229,25 @@ public class controls : MonoBehaviour
 
     private void SettleTetrimino()
     {
-        AddToGrid();
-        CheckForLines();
-        UpdateGridForGhost();
-        levelManager.ToggleHasSwapped(false);
-        this.enabled = false;
-        FindObjectOfType<SpawnTetrimino>().spawnNewTetrimino();
+        if(!slammed)
+        {
+            transform.position += Vector3.down; // checks if player hasnt moved the piece since the invoke
+            if (!ValidMove())
+            {
+                transform.position += Vector3.up;
+
+                AddToGrid();
+                CheckForLines();
+                UpdateGridForGhost();
+                levelManager.ToggleHasSwapped(false);
+                this.enabled = false;
+                FindObjectOfType<SpawnTetrimino>().spawnNewTetrimino();
+            }
+            else
+            {
+                previousTime = Time.time;
+            }
+        }
     }
 
     private void AddToGrid()
@@ -264,11 +282,11 @@ public class controls : MonoBehaviour
         }
         if(linesCleared > 0)
         {
-            levelManager.addPoints(linesCleared);
+            levelManager.AddPoints(linesCleared);
         }
         else
         {
-            levelManager.resetConsecutiveClearCount();
+            levelManager.ResetConsecutiveClearCount();
         }
     }
 
@@ -321,7 +339,7 @@ public class controls : MonoBehaviour
     {
         if(HasSwapped() == false)
         {
-            brickHolding.swapBricks(this.gameObject);
+            brickHolding.SwapBricks(this.gameObject);
             Destroy(this.gameObject);
             levelManager.ToggleHasSwapped(true);
             UpdateGhost();
@@ -330,7 +348,7 @@ public class controls : MonoBehaviour
 
     private bool HasSwapped()
     {
-        return levelManager.swapCheck();
+        return levelManager.SwapCheck();
     }
 
     //
