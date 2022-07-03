@@ -16,7 +16,32 @@ public class MainMenu : MonoBehaviour
 
     [Header("Menu Tabs")]
     public GameObject mainScreen;
+    public GameObject settingsScreen;
+    public GameObject creditsScreen;
     public GameObject quitConfirm;
+
+    private GameObject currentScreen;
+
+    public void OpenSettings()
+    {
+        mainScreen.SetActive(false);
+        settingsScreen.SetActive(true);
+        currentScreen = settingsScreen;
+    }
+
+    public void OpenCredits()
+    {
+        mainScreen.SetActive(false);
+        creditsScreen.SetActive(true);
+        currentScreen = creditsScreen;
+    }
+
+    public void Back()
+    {
+        currentScreen.SetActive(false);
+        mainScreen.SetActive(true);
+        currentScreen = mainScreen;
+    }
 
     public void AttemptQuit()
     {

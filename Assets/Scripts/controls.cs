@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class controls : MonoBehaviour
 {
@@ -9,16 +10,21 @@ public class controls : MonoBehaviour
 
     // Level Manager Script
     private LevelManager levelManager;
+
+
+    private AudioManager audioManager;
     
 
     // Start is called before the first frame update
     void Start()
     {
         levelManager = FindObjectOfType<LevelManager>();
+        audioManager = FindObjectOfType<AudioManager>();
         if (SpawnIsFree())
         {
             brickHolding = FindObjectOfType<BrickHolding>();
             ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
+            settleSound = audioManager.settleSound;
 
             horizontalMoveRate = levelManager.GetHorizontalMoveRate();
             fallTime = levelManager.GetFallTime();
@@ -54,6 +60,13 @@ public class controls : MonoBehaviour
 
     // Basic controls
 
+    public TetriminoControls tetriminoControls;
+    private InputAction spin;
+    private InputAction slam;
+    private InputAction swap;
+    //private InputAction move;
+ 
+
     float horizontalInput = 0;
 
     private float horizontalMoveRate = 0.2f;
@@ -61,6 +74,53 @@ public class controls : MonoBehaviour
 
     bool firstFrameRight = true;
     bool firstFrameLeft = true;
+
+    private void Awake()
+    {
+        tetriminoControls = new TetriminoControls();
+    }
+    private void OnEnable()
+    {
+        spin = tetriminoControls.Player.Spin;
+        slam = tetriminoControls.Player.Slam;
+        swap = tetriminoControls.Player.Swap;
+        //move = tetriminoControls.Player.Move;
+        spin.Enable();
+        slam.Enable();
+        swap.Enable();
+        //move.Enable();
+        spin.performed += Spin;
+        slam.performed += Slam;
+        swap.performed += Swap;
+    }
+
+    private void OnDisable()
+    {
+        spin.Disable();
+        slam.Disable();
+        swap.Disable();
+    }
+    
+    private void Spin(InputAction.CallbackContext context)
+    {
+        transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
+        if (!ValidMove())
+        {
+            transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), -90);
+        }
+        UpdateGhost();
+    }
+
+    private void Slam(InputAction.CallbackContext context)
+    {
+        SlamTetriminoDown();
+    }
+    private void Swap(InputAction.CallbackContext context)
+    {
+        SwapBrick();
+    }
+
+    float testHozMovement;
 
     // Update is called once per frame
     void Update()   
@@ -71,6 +131,8 @@ public class controls : MonoBehaviour
         }
         if(!IsPaused())
         {
+            //horizontalInput = move.ReadValue<float>();
+            //Debug.Log(horizontalInput);
             horizontalInput = Input.GetAxisRaw("Horizontal");
             if (horizontalInput == 0)
             {
@@ -78,9 +140,10 @@ public class controls : MonoBehaviour
                 firstFrameRight = true;
                 horizontalMoveTime = Time.time;
             }
-            Debug.Log(horizontalInput);
 
-            if (Input.GetKeyDown(KeyCode.Z))
+            //Debug.Log(horizontalInput);
+
+            /*if (Input.GetKeyDown(KeyCode.Z))
             {
                 transform.RotateAround(transform.TransformPoint(rotationPoint), new Vector3(0, 0, 1), 90);
                 if (!ValidMove())
@@ -93,10 +156,11 @@ public class controls : MonoBehaviour
             {
                 SwapBrick();
             }
+            
             if(Input.GetKeyDown(KeyCode.Space))
             {
                 SlamTetriminoDown();
-            }
+            }*/
         }
     }
 
@@ -223,6 +287,12 @@ public class controls : MonoBehaviour
 
     //
 
+    // SFX
+
+    private AudioSource settleSound;
+
+    //
+
     // Grid Logic
 
     private static Transform[,] grid = new Transform[10, 20];
@@ -235,7 +305,7 @@ public class controls : MonoBehaviour
             if (!ValidMove())
             {
                 transform.position += Vector3.up;
-
+                settleSound.Play();
                 AddToGrid();
                 CheckForLines();
                 UpdateGridForGhost();

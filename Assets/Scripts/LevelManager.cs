@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class LevelManager : MonoBehaviour
 {
@@ -57,9 +58,35 @@ public class LevelManager : MonoBehaviour
     private GameObject currentControlledTetrimino;
     private bool paused = false;
 
+    // NEW INPUT SYSTEM STUFF
+    public TetriminoControls tetriminoControls;
+    private InputAction pause;
+
+    private void Awake()
+    {
+        tetriminoControls = new TetriminoControls();
+    }
+    private void OnEnable()
+    {
+        pause = tetriminoControls.Player.Pause;
+        pause.Enable();
+        pause.performed += PauseButton;
+    }
+
+    private void OnDisable()
+    {
+        pause.Disable();
+    }
+    private void PauseButton(InputAction.CallbackContext context)
+    {
+        PauseGame();
+    }
+    // END
+
     public void PauseGame()
     {
         TogglePauseMenu();
+        FindObjectOfType<AudioManager>().toggleAudioFocus();
     }
     
     public void SetNewCCTetrimino(GameObject tetrimino)
@@ -154,6 +181,12 @@ public class LevelManager : MonoBehaviour
     {
         Debug.Log("GAME OVER!");
         gameOverPanel.SetActive(true);
+        StopMusic();
+    }
+
+    private void StopMusic()
+    {
+        FindObjectOfType<AudioManager>().StopMusic();
     }
 
     public void RestartGame()
