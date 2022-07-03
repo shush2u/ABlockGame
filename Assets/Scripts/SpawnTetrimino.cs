@@ -21,6 +21,15 @@ public class SpawnTetrimino : MonoBehaviour
         spawnNewTetrimino();
     }
 
+    public void Pause()
+    {
+        this.enabled = false;
+    }
+    public void Unpause()
+    {
+        this.enabled = true; 
+    }
+
     public void spawnNewTetrimino() // public function to call when a new tetrimino is needed
     {
         spawnNextTetrimino(NextTetrimino);

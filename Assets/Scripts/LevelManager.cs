@@ -62,6 +62,11 @@ public class LevelManager : MonoBehaviour
     public TetriminoControls tetriminoControls;
     private InputAction pause;
 
+    private void Start()
+    {
+        BeginCountdown();
+    }
+
     private void Awake()
     {
         tetriminoControls = new TetriminoControls();
@@ -77,11 +82,56 @@ public class LevelManager : MonoBehaviour
     {
         pause.Disable();
     }
+
+    public GameObject CountdownAnimator;
+    public GameObject CountdownCanvas;
+
+    private void FixedUpdate()
+    {
+        if(CountdownCanvas.activeSelf == true)
+        {
+            if(CountdownAnimator.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                EndOfCountdown();
+            }
+        }
+        
+    }
+
+    private void EndOfCountdown()
+    {
+        if (currentControlledTetrimino != null)
+        {
+            currentControlledTetrimino.GetComponent<controls>().IsDummy(false);
+        }
+        else
+        {
+            spawnPoint.GetComponent<SpawnTetrimino>().Unpause();
+        }
+        CountdownCanvas.SetActive(false);
+    }
+
+    public GameObject spawnPoint;
+
+    private void BeginCountdown()
+    {
+        if(currentControlledTetrimino != null)
+        {
+            currentControlledTetrimino.GetComponent<controls>().IsDummy(true);
+        }
+        else
+        {
+            spawnPoint.GetComponent<SpawnTetrimino>().Pause();
+        }
+        
+        CountdownCanvas.SetActive(true);
+        Debug.Log("YA");
+    }
+
     private void PauseButton(InputAction.CallbackContext context)
     {
         PauseGame();
     }
-    // END
 
     public void PauseGame()
     {
@@ -96,6 +146,7 @@ public class LevelManager : MonoBehaviour
 
     private void TogglePauseMenu()
     {
+        CountdownCanvas.SetActive(false);
         if (paused == false)
         {
             paused = true;
@@ -105,7 +156,7 @@ public class LevelManager : MonoBehaviour
         else
         {
             paused = false;
-            currentControlledTetrimino.GetComponent<controls>().IsDummy(false);
+            BeginCountdown();
             inGamePauseButton.SetActive(true);
         }
         pauseMenuPanel.SetActive(paused);
