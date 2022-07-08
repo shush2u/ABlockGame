@@ -175,6 +175,7 @@ public class controls : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //Debug.Log(Time.time + " " + previousTime);
         if (Time.time - previousTime > (Input.GetKey(KeyCode.S) ? fallTime / fastFallTimeMultiplier : fallTime))
         {
             Descend();
@@ -299,6 +300,7 @@ public class controls : MonoBehaviour
 
     private void SettleTetrimino()
     {
+        //Debug.Log("here");
         if(!slammed)
         {
             transform.position += Vector3.down; // checks if player hasnt moved the piece since the invoke
@@ -315,6 +317,7 @@ public class controls : MonoBehaviour
             }
             else
             {
+                settlingTetrimino = false;
                 previousTime = Time.time;
             }
         }

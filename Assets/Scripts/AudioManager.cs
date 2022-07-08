@@ -36,6 +36,12 @@ public class AudioManager : MonoBehaviour
         
     }
 
+    public void ResetAudioFocus()
+    {
+        audioMixer.SetFloat("MasterVolume", gameplayVolume);
+        focused = true;
+    }
+
     public GameObject music;
 
     public void StopMusic()

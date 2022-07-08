@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class LevelManager : MonoBehaviour
 {
@@ -11,15 +12,20 @@ public class LevelManager : MonoBehaviour
     public float fallTime = 2f;
     public float fastFallTimeMultiplier = 15f;
 
+    public GameObject spawnPoint;
+
     [Header("Point Display Parameters")]
     public float points = 0;
     [SerializeField] private TextMeshProUGUI pointsText;
+    [SerializeField] private TextMeshProUGUI lineClearText;
+    [SerializeField] private GameObject lineClearObject;
+    private bool lineClearTextActive = false;
 
     [Header("Reward System")]
     public int pointsPerLine = 100;
     public float tetrisMultiplier = 1.5f;
     public float consecutiveClearMultiplier = 1.25f;
-    private int consecutiveClears = 0;
+    private int consecutiveClearCount = 0;
 
     [Header("Speed up System")]
     public float speedUpPointRequirement = 1000f;
@@ -55,17 +61,26 @@ public class LevelManager : MonoBehaviour
     public GameObject pauseMenuPanel;
     public GameObject inGamePauseButton;
 
-    private GameObject currentControlledTetrimino;
+    private GameObject currentControlledPiece;
     private bool paused = false;
 
     // NEW INPUT SYSTEM STUFF
     public TetriminoControls tetriminoControls;
     private InputAction pause;
 
+    public GameObject staticOptionsObject;
+    private StaticOptions staticOptions;
+
     private void Start()
     {
+        staticOptions = staticOptionsObject.GetComponent<StaticOptions>();
+        countdownEnabled = staticOptions.IsCountdownEnabled();
+        audioManager = audioManagerObject.GetComponent<AudioManager>();
+
         BeginCountdown();
+        countdownToggleButton.isOn = countdownEnabled;
     }
+
 
     private void Awake()
     {
@@ -83,26 +98,40 @@ public class LevelManager : MonoBehaviour
         pause.Disable();
     }
 
+    [Header("Countdown Params")]
+
     public GameObject CountdownAnimator;
     public GameObject CountdownCanvas;
 
+    public Toggle countdownToggleButton;
+
+    private bool countdownEnabled;
+
     private void FixedUpdate()
     {
-        if(CountdownCanvas.activeSelf == true)
+        if(CountdownCanvas.activeSelf == true && countdownEnabled)
         {
             if(CountdownAnimator.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
             {
                 EndOfCountdown();
             }
         }
-        
+        if (lineClearTextActive == true)
+        {
+            Debug.Log(lineClearObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime);
+            if (lineClearObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
+            {
+                lineClearTextActive = false;
+                RemoveLineClearText();
+            }
+        }
     }
 
     private void EndOfCountdown()
     {
-        if (currentControlledTetrimino != null)
+        if (currentControlledPiece != null)
         {
-            currentControlledTetrimino.GetComponent<controls>().IsDummy(false);
+            currentControlledPiece.GetComponent<controls>().IsDummy(false);
         }
         else
         {
@@ -111,21 +140,33 @@ public class LevelManager : MonoBehaviour
         CountdownCanvas.SetActive(false);
     }
 
-    public GameObject spawnPoint;
-
     private void BeginCountdown()
     {
-        if(currentControlledTetrimino != null)
+        if(countdownEnabled)
         {
-            currentControlledTetrimino.GetComponent<controls>().IsDummy(true);
+            if(currentControlledPiece != null)
+            {
+                currentControlledPiece.GetComponent<controls>().IsDummy(true);
+            }
+            else
+            {
+                spawnPoint.GetComponent<SpawnTetrimino>().Pause();
+            }
+        
+            CountdownCanvas.SetActive(true);
         }
         else
         {
-            spawnPoint.GetComponent<SpawnTetrimino>().Pause();
+            spawnPoint.GetComponent<SpawnTetrimino>().Unpause();
+            if (currentControlledPiece != null)
+                currentControlledPiece.GetComponent<controls>().IsDummy(false);
         }
-        
-        CountdownCanvas.SetActive(true);
-        Debug.Log("YA");
+    }
+
+    public void ToggleCountdown(bool toggle)
+    {
+        countdownEnabled = toggle;
+        staticOptions.ToggleCountdown(toggle);
     }
 
     private void PauseButton(InputAction.CallbackContext context)
@@ -136,12 +177,12 @@ public class LevelManager : MonoBehaviour
     public void PauseGame()
     {
         TogglePauseMenu();
-        FindObjectOfType<AudioManager>().toggleAudioFocus();
+        audioManager.toggleAudioFocus();
     }
     
     public void SetNewCCTetrimino(GameObject tetrimino)
     {
-        currentControlledTetrimino = tetrimino;
+        currentControlledPiece = tetrimino;
     }
 
     private void TogglePauseMenu()
@@ -150,7 +191,10 @@ public class LevelManager : MonoBehaviour
         if (paused == false)
         {
             paused = true;
-            currentControlledTetrimino.GetComponent<controls>().IsDummy(true);
+            if(currentControlledPiece != null)
+            {
+                currentControlledPiece.GetComponent<controls>().IsDummy(true);
+            }
             inGamePauseButton.SetActive(false);
         }
         else
@@ -167,7 +211,7 @@ public class LevelManager : MonoBehaviour
     public void AddPoints(int linesCleared)
     {
         int scoreToAdd = 0;
-        if(linesCleared <= 3)
+        if (linesCleared <= 3)
         {
             scoreToAdd += (int)(pointsPerLine * linesCleared);
         }
@@ -175,18 +219,19 @@ public class LevelManager : MonoBehaviour
         {
             scoreToAdd += (int)(pointsPerLine * linesCleared * tetrisMultiplier);
         }
-        if(consecutiveClears > 0)
+        if(consecutiveClearCount > 0)
         {
-            for(int i = 0; i < consecutiveClears; i++)
+            for(int i = 0; i < consecutiveClearCount; i++)
             {
                 scoreToAdd = (int)(scoreToAdd * consecutiveClearMultiplier);
             }
         }
         points += scoreToAdd;
         speedUpCounter += scoreToAdd;
-        consecutiveClears++;
+        consecutiveClearCount++;
         SpeedUp();
         UpdatePointsText();
+        DisplayLineClearText(linesCleared, consecutiveClearCount, scoreToAdd);
     }
 
     private void SpeedUp()
@@ -203,9 +248,34 @@ public class LevelManager : MonoBehaviour
         pointsText.text = "Points:\n" + points;
     }
 
+    private void DisplayLineClearText(int linesCleared, int consecutiveClears, int scoreToAdd)
+    {
+        lineClearTextActive = true;
+        lineClearText.text = "";
+        if (consecutiveClears > 1)
+        {
+            lineClearText.text += consecutiveClears + " In a Row!\n";
+        }
+        if (linesCleared == 1)
+        {
+            lineClearText.text += linesCleared + " line cleared!\n";
+        }
+        else
+        {
+            lineClearText.text += linesCleared + " lines cleared!\n";
+        }
+        lineClearText.text += "+" + scoreToAdd + " points";
+        lineClearObject.SetActive(false);
+        lineClearObject.SetActive(true);
+    }
+    private void RemoveLineClearText()
+    {
+        lineClearObject.SetActive(false);
+    }
+
     public void ResetConsecutiveClearCount()
     {
-        consecutiveClears = 0;
+        consecutiveClearCount = 0;
     }
 
     // Swap Behaviour
@@ -228,6 +298,10 @@ public class LevelManager : MonoBehaviour
     public GameObject gameOverPanel;
     public string MainMenuName;
 
+    [Header("Audio Manager")]
+    public GameObject audioManagerObject;
+    private AudioManager audioManager;
+
     public void GameOver()
     {
         Debug.Log("GAME OVER!");
@@ -237,7 +311,7 @@ public class LevelManager : MonoBehaviour
 
     private void StopMusic()
     {
-        FindObjectOfType<AudioManager>().StopMusic();
+        audioManager.StopMusic();
     }
 
     public void RestartGame()
@@ -247,6 +321,7 @@ public class LevelManager : MonoBehaviour
 
     public void ExitToMainMenu()
     {
+        audioManager.ResetAudioFocus();
         SceneManager.LoadScene(MainMenuName);
     }
 }
