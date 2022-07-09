@@ -4,13 +4,14 @@ using UnityEngine;
 
 public class BrickHolding : MonoBehaviour
 {
-    public GameObject currentHeldBrick;
+    private GameObject currentHeldBrick;
 
+    [SerializeField] private GameObject spawnTetriminoObject;
     private SpawnTetrimino spawnTetrimino;
 
     private void Start()
     {
-        spawnTetrimino = FindObjectOfType<SpawnTetrimino>();
+        spawnTetrimino = spawnTetriminoObject.GetComponent<SpawnTetrimino>();
     }
 
     private bool SlotEmpty()
@@ -26,7 +27,7 @@ public class BrickHolding : MonoBehaviour
     {
         if(SlotEmpty())
         {
-            spawnTetrimino.spawnNewTetrimino();
+            spawnTetrimino.SpawnNewTetrimino();
         }
         NewHeldTetrimino(controlledBrick);
     }
@@ -35,11 +36,11 @@ public class BrickHolding : MonoBehaviour
     {
         if(!SlotEmpty())
         {
-            currentHeldBrick.GetComponent<controls>().IsDummy(false);
-            spawnTetrimino.spawnHeldTetrimino(currentHeldBrick);
+            currentHeldBrick.GetComponent<Controls>().IsDummy(false);
+            spawnTetrimino.SpawnHeldTetrimino(currentHeldBrick);
             Destroy(currentHeldBrick);
         }
         currentHeldBrick = (GameObject)Instantiate(newHeldTetrimino, transform.position, Quaternion.identity);
-        currentHeldBrick.GetComponent<controls>().IsDummy(true);
+        currentHeldBrick.GetComponent<Controls>().IsDummy(true);
     }
 }

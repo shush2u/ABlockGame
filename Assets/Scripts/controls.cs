@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class controls : MonoBehaviour
+public class Controls : MonoBehaviour
 {
 
     public Vector3 rotationPoint;
@@ -25,6 +26,7 @@ public class controls : MonoBehaviour
             brickHolding = FindObjectOfType<BrickHolding>();
             ghostBrickBehaviour = FindObjectOfType<GhostBrickBehaviour>();
             settleSound = audioManager.settleSound;
+            lineClearSound = audioManager.lineClearSound;
 
             horizontalMoveRate = levelManager.GetHorizontalMoveRate();
             fallTime = levelManager.GetFallTime();
@@ -58,7 +60,7 @@ public class controls : MonoBehaviour
         }   
     }
 
-    // Basic controls
+    // Basic Controls
 
     public TetriminoControls tetriminoControls;
     private InputAction spin;
@@ -291,6 +293,7 @@ public class controls : MonoBehaviour
     // SFX
 
     private AudioSource settleSound;
+    private AudioSource lineClearSound;
 
     //
 
@@ -313,7 +316,7 @@ public class controls : MonoBehaviour
                 UpdateGridForGhost();
                 levelManager.ToggleHasSwapped(false);
                 this.enabled = false;
-                FindObjectOfType<SpawnTetrimino>().spawnNewTetrimino();
+                FindObjectOfType<SpawnTetrimino>().SpawnNewTetrimino();
             }
             else
             {
@@ -356,6 +359,7 @@ public class controls : MonoBehaviour
         if(linesCleared > 0)
         {
             levelManager.AddPoints(linesCleared);
+            lineClearSound.Play();
         }
         else
         {
@@ -432,7 +436,7 @@ public class controls : MonoBehaviour
 
     private void UpdateGhost()
     {
-        ghostBrickBehaviour.updatePosition(this.gameObject);
+        ghostBrickBehaviour.UpdatePosition(this.gameObject);
     }
 
     private void UpdateGridForGhost()

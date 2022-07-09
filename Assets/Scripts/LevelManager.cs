@@ -7,29 +7,28 @@ using UnityEngine.UI;
 public class LevelManager : MonoBehaviour
 {
     [Header("Control Parameters")]
-    public float horizontalMoveRate = 0.2f;
-    public float placeTetriminoDelay = 0.25f;
-    public float fallTime = 2f;
-    public float fastFallTimeMultiplier = 15f;
-
-    public GameObject spawnPoint;
+    [SerializeField] private float horizontalMoveRate = 0.2f;
+    [SerializeField] private float placeTetriminoDelay = 0.25f;
+    [SerializeField] private float fallTime = 2f;
+    [SerializeField] private float fastFallTimeMultiplier = 15f;
+    [SerializeField] private GameObject spawnPoint;
 
     [Header("Point Display Parameters")]
-    public float points = 0;
+    [SerializeField] private float points = 0;
     [SerializeField] private TextMeshProUGUI pointsText;
     [SerializeField] private TextMeshProUGUI lineClearText;
     [SerializeField] private GameObject lineClearObject;
     private bool lineClearTextActive = false;
 
     [Header("Reward System")]
-    public int pointsPerLine = 100;
-    public float tetrisMultiplier = 1.5f;
-    public float consecutiveClearMultiplier = 1.25f;
+    [SerializeField] private int pointsPerLine = 100;
+    [SerializeField] private float tetrisMultiplier = 1.5f;
+    [SerializeField] private float consecutiveClearMultiplier = 1.25f;
     private int consecutiveClearCount = 0;
 
     [Header("Speed up System")]
-    public float speedUpPointRequirement = 1000f;
-    public float speedUpMultiplier = 0.9f;
+    [SerializeField] private float speedUpPointRequirement = 1000f;
+    [SerializeField] private float speedUpMultiplier = 0.9f;
     private float speedUpCounter = 0;
 
     // Controls params
@@ -57,9 +56,9 @@ public class LevelManager : MonoBehaviour
     // Pausing
 
     [Header("Pause Parameters")]
-    
-    public GameObject pauseMenuPanel;
-    public GameObject inGamePauseButton;
+
+    [SerializeField] private GameObject pauseMenuPanel;
+    [SerializeField] private GameObject inGamePauseButton;
 
     private GameObject currentControlledPiece;
     private bool paused = false;
@@ -67,8 +66,9 @@ public class LevelManager : MonoBehaviour
     // NEW INPUT SYSTEM STUFF
     public TetriminoControls tetriminoControls;
     private InputAction pause;
+    //
 
-    public GameObject staticOptionsObject;
+    [SerializeField] private GameObject staticOptionsObject;
     private StaticOptions staticOptions;
 
     private void Start()
@@ -100,10 +100,10 @@ public class LevelManager : MonoBehaviour
 
     [Header("Countdown Params")]
 
-    public GameObject CountdownAnimator;
-    public GameObject CountdownCanvas;
+    [SerializeField] private GameObject CountdownAnimator;
+    [SerializeField] private GameObject CountdownCanvas;
 
-    public Toggle countdownToggleButton;
+    [SerializeField] private Toggle countdownToggleButton;
 
     private bool countdownEnabled;
 
@@ -118,7 +118,6 @@ public class LevelManager : MonoBehaviour
         }
         if (lineClearTextActive == true)
         {
-            Debug.Log(lineClearObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime);
             if (lineClearObject.GetComponent<Animator>().GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f)
             {
                 lineClearTextActive = false;
@@ -131,7 +130,7 @@ public class LevelManager : MonoBehaviour
     {
         if (currentControlledPiece != null)
         {
-            currentControlledPiece.GetComponent<controls>().IsDummy(false);
+            currentControlledPiece.GetComponent<Controls>().IsDummy(false);
         }
         else
         {
@@ -146,7 +145,7 @@ public class LevelManager : MonoBehaviour
         {
             if(currentControlledPiece != null)
             {
-                currentControlledPiece.GetComponent<controls>().IsDummy(true);
+                currentControlledPiece.GetComponent<Controls>().IsDummy(true);
             }
             else
             {
@@ -159,7 +158,7 @@ public class LevelManager : MonoBehaviour
         {
             spawnPoint.GetComponent<SpawnTetrimino>().Unpause();
             if (currentControlledPiece != null)
-                currentControlledPiece.GetComponent<controls>().IsDummy(false);
+                currentControlledPiece.GetComponent<Controls>().IsDummy(false);
         }
     }
 
@@ -193,7 +192,7 @@ public class LevelManager : MonoBehaviour
             paused = true;
             if(currentControlledPiece != null)
             {
-                currentControlledPiece.GetComponent<controls>().IsDummy(true);
+                currentControlledPiece.GetComponent<Controls>().IsDummy(true);
             }
             inGamePauseButton.SetActive(false);
         }
@@ -295,17 +294,19 @@ public class LevelManager : MonoBehaviour
     // Game Over Stuff
 
     [Header("Game Over Parameters")]
-    public GameObject gameOverPanel;
-    public string MainMenuName;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private TextMeshProUGUI highScoreText;
+    [SerializeField] private string MainMenuName;
 
     [Header("Audio Manager")]
-    public GameObject audioManagerObject;
+    [SerializeField] private GameObject audioManagerObject;
     private AudioManager audioManager;
 
     public void GameOver()
     {
         Debug.Log("GAME OVER!");
         gameOverPanel.SetActive(true);
+        highScoreText.text = "Total Score:\n" + points;
         StopMusic();
     }
 

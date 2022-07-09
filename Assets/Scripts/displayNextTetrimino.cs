@@ -2,18 +2,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class displayNextTetrimino : MonoBehaviour
+public class DisplayNextTetrimino : MonoBehaviour
 {
     private GameObject instantiatedTetrimino;
-    public void updateNextTetriminoDisplay(GameObject nextTetrimino)
+    public void UpdateNextTetriminoDisplay(GameObject nextTetrimino)
     {
-        newDisplayTetrimino(nextTetrimino);
+        NewDisplayTetrimino(nextTetrimino);
     }
 
-    private void newDisplayTetrimino(GameObject nextTetrimino)
+    private void NewDisplayTetrimino(GameObject nextTetrimino)
     {
         Destroy(instantiatedTetrimino);
         instantiatedTetrimino = (GameObject) Instantiate(nextTetrimino, transform.position, Quaternion.identity);
-        instantiatedTetrimino.GetComponent<controls>().IsDummy(true);
+        instantiatedTetrimino.GetComponent<Controls>().IsDummy(true);
     }
 }

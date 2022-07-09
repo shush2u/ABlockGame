@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class MainMenu : MonoBehaviour
 {
     [Header("Start Game Params")]
-    public string startLevelName;
+    [SerializeField] private string startLevelName;
 
     public void StartGame()
     {
@@ -16,21 +17,23 @@ public class MainMenu : MonoBehaviour
 
 
     [Header("Menu Tabs")]
-    public GameObject mainScreen;
-    public GameObject settingsScreen;
-    public GameObject creditsScreen;
-    public GameObject quitConfirm;
+    [SerializeField] private GameObject mainScreen;
+    [SerializeField] private GameObject settingsScreen;
+    [SerializeField] private GameObject creditsScreen;
+    [SerializeField] private GameObject quitConfirm;
+    [SerializeField] private TextMeshProUGUI versionText;
 
     private GameObject currentScreen;
 
     [Header("Settings Sync")]
-    public Toggle countdownToggle;
-    public StaticOptions staticOptions;
+    [SerializeField] private Toggle countdownToggle;
+    [SerializeField] private StaticOptions staticOptions;
 
     private void Start()
     {
         staticOptions = FindObjectOfType<StaticOptions>();
         countdownToggle.isOn = staticOptions.IsCountdownEnabled();
+        versionText.text = "Version: " + Application.version;
     }
 
     public void OpenSettings()
@@ -113,7 +116,7 @@ public class MainMenu : MonoBehaviour
     {
         GameObject nextDisplayTetrimino = pickNewDisplayTetrimino();
         currentDisplayTetrimino = (GameObject)Instantiate(nextDisplayTetrimino, displayPosition.transform.position, displayPosition.transform.rotation);
-        currentDisplayTetrimino.GetComponent<controls>().IsDummy(true);
+        currentDisplayTetrimino.GetComponent<Controls>().IsDummy(true);
 
         foreach (Transform children in currentDisplayTetrimino.transform)
         {

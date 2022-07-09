@@ -7,7 +7,7 @@ using UnityEngine.Audio;
 
 public class SettingsScript : MonoBehaviour
 {
-    public AudioMixer audioMixer;
+    [SerializeField] private AudioMixer audioMixer;
 
     public void setSFXVolume(float volume)
     {
@@ -32,7 +32,7 @@ public class SettingsScript : MonoBehaviour
 
     Resolution[] resolutions;
 
-    public TMP_Dropdown resolutionDropdown;
+    [SerializeField] private TMP_Dropdown resolutionDropdown;
 
     private void Start()
     {

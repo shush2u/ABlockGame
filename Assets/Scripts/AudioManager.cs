@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class AudioManager : MonoBehaviour
 {
     public AudioSource settleSound;
+    public AudioSource lineClearSound;
 
     public AudioMixer audioMixer;
 

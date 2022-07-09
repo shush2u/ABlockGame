@@ -11,14 +11,14 @@ public class GhostBrickBehaviour : MonoBehaviour
 
     private Transform[,] grid = new Transform[10, 20];
 
-    public void updatePosition(GameObject tetrimino)
+    public void UpdatePosition(GameObject tetrimino)
     {
         if(currentGhostTetrimino != null)
         {
             Destroy(currentGhostTetrimino);
         }
         currentGhostTetrimino = (GameObject)Instantiate(tetrimino, tetrimino.transform.position, tetrimino.transform.rotation);
-        Destroy(currentGhostTetrimino.GetComponent<controls>());
+        Destroy(currentGhostTetrimino.GetComponent<Controls>());
         MakeGhostTransparent();
         bool lowestValidPointReached = false;
         do

@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 2333309944217114872}
   - component: {fileID: 2333309944217114873}
   - component: {fileID: 2333309944217114822}
-  - component: {fileID: 2333309944217114823}
   m_Layer: 0
   m_Name: TPiece (1)
   m_TagString: Untagged
@@ -98,19 +97,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2333309944217114823
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333309944217114821}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c50f07e167802f44daef7984b717f0c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tetrimino: {fileID: 2333309944452597102}
 --- !u!1 &2333309944452597102
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,7 +175,6 @@ GameObject:
   - component: {fileID: 2333309944724221351}
   - component: {fileID: 2333309944724221348}
   - component: {fileID: 2333309944724221349}
-  - component: {fileID: 2333309944724221346}
   m_Layer: 0
   m_Name: TPiece (3)
   m_TagString: Untagged
@@ -275,19 +260,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2333309944724221346
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333309944724221344}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c50f07e167802f44daef7984b717f0c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tetrimino: {fileID: 2333309944452597102}
 --- !u!1 &2333309944790517613
 GameObject:
   m_ObjectHideFlags: 0
@@ -300,7 +272,6 @@ GameObject:
   - component: {fileID: 2333309944790517600}
   - component: {fileID: 2333309944790517601}
   - component: {fileID: 2333309944790517614}
-  - component: {fileID: 2333309944790517615}
   m_Layer: 0
   m_Name: TPiece (2)
   m_TagString: Untagged
@@ -386,19 +357,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2333309944790517615
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333309944790517613}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c50f07e167802f44daef7984b717f0c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tetrimino: {fileID: 2333309944452597102}
 --- !u!1 &2333309945289766337
 GameObject:
   m_ObjectHideFlags: 0
@@ -411,7 +369,6 @@ GameObject:
   - component: {fileID: 2333309945289766340}
   - component: {fileID: 2333309945289766341}
   - component: {fileID: 2333309945289766338}
-  - component: {fileID: 2333309945289766339}
   m_Layer: 0
   m_Name: TPiece
   m_TagString: Untagged
@@ -497,16 +454,3 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2333309945289766339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2333309945289766337}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c50f07e167802f44daef7984b717f0c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tetrimino: {fileID: 2333309944452597102}

@@ -10,15 +10,15 @@ public class SpawnTetrimino : MonoBehaviour
     private GameObject previousTetrimino;
     private int tetriminoRepeats = 0;
 
-    private displayNextTetrimino nextTetriminoDisplay;
+    private DisplayNextTetrimino nextTetriminoDisplay;
 
     // Start is called before the first frame update
     void Start()
     {
-        nextTetriminoDisplay = FindObjectOfType<displayNextTetrimino>();
-        pickNextTetrimino();
+        nextTetriminoDisplay = FindObjectOfType<DisplayNextTetrimino>();
+        PickNextTetrimino();
         previousTetrimino = NextTetrimino;
-        spawnNewTetrimino();
+        SpawnNewTetrimino();
     }
 
     public void Pause()
@@ -30,22 +30,22 @@ public class SpawnTetrimino : MonoBehaviour
         this.enabled = true; 
     }
 
-    public void spawnNewTetrimino() // public function to call when a new tetrimino is needed
+    public void SpawnNewTetrimino() // public function to call when a new tetrimino is needed
     {
-        spawnNextTetrimino(NextTetrimino);
+        SpawnNextTetrimino(NextTetrimino);
     }
 
-    public void spawnHeldTetrimino(GameObject tetrimino)
+    public void SpawnHeldTetrimino(GameObject tetrimino)
     {
         Instantiate(tetrimino, transform.position, Quaternion.identity);
     }
 
-    private void updateNextTetriminoDisplay(GameObject NextTetrimino) // Updates UI to show next tetrimino
+    private void UpdateNextTetriminoDisplay(GameObject NextTetrimino) // Updates UI to show next tetrimino
     {
-        nextTetriminoDisplay.updateNextTetriminoDisplay(NextTetrimino);
+        nextTetriminoDisplay.UpdateNextTetriminoDisplay(NextTetrimino);
     }
 
-    private void pickNextTetrimino() // Picks new random tetrimino
+    private void PickNextTetrimino() // Picks new random tetrimino
     {
         NextTetrimino = tetriminoTypes[Random.Range(0, tetriminoTypes.Length)];
 
@@ -63,12 +63,12 @@ public class SpawnTetrimino : MonoBehaviour
             NextTetrimino = tetriminoTypes[Random.Range(0, tetriminoTypes.Length)];
         }
 
-        updateNextTetriminoDisplay(NextTetrimino); 
+        UpdateNextTetriminoDisplay(NextTetrimino); 
     }
 
-    private void spawnNextTetrimino(GameObject tetrimino) // Spawns next tetrimino ingame, picks new next tetrimino.
+    private void SpawnNextTetrimino(GameObject tetrimino) // Spawns next tetrimino ingame, picks new next tetrimino.
     {
         Instantiate(tetrimino, transform.position, Quaternion.identity);
-        pickNextTetrimino();
+        PickNextTetrimino();
     }
 }
